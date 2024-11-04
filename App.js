@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Button, FlatList } from 'react-native';
-
+import { StyleSheet, Text, View, TextInput, Button, FlatList, TouchableOpacity } from 'react-native';
 
 export default function App() {
   const [goal, setGoal] = useState('');
@@ -25,14 +24,21 @@ export default function App() {
     }
   };
 
+  const deleteGoalHandler = (index) => {
+    setGoals((currentGoals) => currentGoals.filter((_, i) => i !== index));
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
         data={goals}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <View style={styles.goalItem}>
             <Text>{item}</Text>
+            <TouchableOpacity onPress={() => deleteGoalHandler(index)}>
+              <Text style={styles.deleteText}> ❌ </Text>
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -77,5 +83,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9c2ff',
     borderRadius: 5,
     width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  deleteText: {
+    color: 'red',
+    fontSize: 18,
   },
 });
