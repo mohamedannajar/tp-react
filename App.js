@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Button, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, FlatList, TouchableOpacity, Modal, ImageBackground, TouchableNativeFeedback } from 'react-native';
 
 export default function App() {
   const [goal, setGoal] = useState('');
@@ -16,11 +16,13 @@ export default function App() {
     "Organiser un meetup autour de la tech",
     "Faire un triathlon",
   ]);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const addGoalHandler = () => {
     if (goal.trim()) {
       setGoals((currentGoals) => [...currentGoals, goal]);
       setGoal('');
+      setModalVisible(false);
     }
   };
 
@@ -29,7 +31,7 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
+    <ImageBackground source={require('./assets/background.jpg')} style={styles.container}>
       <FlatList
         data={goals}
         keyExtractor={(item, index) => index.toString()}
@@ -42,40 +44,52 @@ export default function App() {
           </View>
         )}
       />
+      
       <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Ajouter un objectif"
-          value={goal}
-          onChangeText={setGoal}
-        />
-        <Button title="Add" onPress={addGoalHandler} />
+        <TouchableNativeFeedback onPress={() => setModalVisible(true)}>
+          <View style={styles.addButton}>
+            <Text style={styles.addButtonText}>Ajouter un objectif</Text>
+          </View>
+        </TouchableNativeFeedback>
       </View>
+
+      <Modal visible={modalVisible} animationType="slide">
+        <View style={styles.modalContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Ajouter un objectif"
+            value={goal}
+            onChangeText={setGoal}
+          />
+          <Button title="Add" onPress={addGoalHandler} />
+          <Button title="Cancel" color="red" onPress={() => setModalVisible(false)} />
+        </View>
+      </Modal>
+      
       <StatusBar style="auto" />
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     padding: 20,
   },
   inputContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
+    marginVertical: 20,
   },
   input: {
     borderColor: '#ccc',
     borderWidth: 1,
     padding: 10,
-    width: '70%',
-    marginRight: 10,
+    width: '80%',
+    marginBottom: 10,
   },
   goalItem: {
     padding: 10,
@@ -90,5 +104,22 @@ const styles = StyleSheet.create({
   deleteText: {
     color: 'red',
     fontSize: 18,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'white',
+  },
+  addButton: {
+    backgroundColor: '#6200ee',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
