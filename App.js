@@ -17,6 +17,8 @@ export default function App() {
     "Faire un triathlon",
   ]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState(null);
 
   const addGoalHandler = () => {
     if (goal.trim()) {
@@ -24,6 +26,23 @@ export default function App() {
       setGoal('');
       setModalVisible(false);
     }
+  };
+
+  const editGoalHandler = (index) => {
+    setSelectedGoal(index);
+    setGoal(goals[index]);
+    setIsEditMode(true);
+    setModalVisible(true);
+  };
+
+  const saveEditHandler = () => {
+    setGoals((currentGoals) =>
+      currentGoals.map((g, i) => (i === selectedGoal ? goal : g))
+    );
+    setGoal('');
+    setSelectedGoal(null);
+    setIsEditMode(false);
+    setModalVisible(false);
   };
 
   const deleteGoalHandler = (index) => {
@@ -38,15 +57,20 @@ export default function App() {
         renderItem={({ item, index }) => (
           <View style={styles.goalItem}>
             <Text>{item}</Text>
-            <TouchableOpacity onPress={() => deleteGoalHandler(index)}>
-              <Text style={styles.deleteText}> ❌ </Text>
-            </TouchableOpacity>
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity onPress={() => editGoalHandler(index)}>
+                <Text style={styles.editText}>✏️</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => deleteGoalHandler(index)}>
+                <Text style={styles.deleteText}> ❌ </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       />
       
       <View style={styles.inputContainer}>
-        <TouchableNativeFeedback onPress={() => setModalVisible(true)}>
+        <TouchableNativeFeedback onPress={() => { setModalVisible(true); setIsEditMode(false); }}>
           <View style={styles.addButton}>
             <Text style={styles.addButtonText}>Ajouter un objectif</Text>
           </View>
@@ -57,11 +81,15 @@ export default function App() {
         <View style={styles.modalContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Ajouter un objectif"
+            placeholder={isEditMode ? "Modifier l'objectif" : "Ajouter un objectif"}
             value={goal}
             onChangeText={setGoal}
           />
-          <Button title="Add" onPress={addGoalHandler} />
+          {isEditMode ? (
+            <Button title="Save Changes" onPress={saveEditHandler} />
+          ) : (
+            <Button title="Add" onPress={addGoalHandler} />
+          )}
           <Button title="Cancel" color="red" onPress={() => setModalVisible(false)} />
         </View>
       </Modal>
@@ -100,6 +128,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+  },
+  editText: {
+    color: 'blue',
+    fontSize: 18,
+    marginRight: 10,
   },
   deleteText: {
     color: 'red',
